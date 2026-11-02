@@ -1,0 +1,125 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build (${{ matrix.configuration }}, x64)
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Show toolchain
+        run: dotnet --info
+
+      - name: Restore
+        run: dotnet restore PAIC.sln -p:Platform=x64
+
+      - name: Build
+        run: dotnet build PAIC.sln -c ${{ matrix.configuration }} -p:Platform=x64 --no-restore
+
+      - name: Test (portable logic)
+        run: dotnet test tests/PAIC.Tests/PAIC.Tests.csproj -c ${{ matrix.configuration }} --logger "trx;LogFileName=test-results.trx"
+
+      - name: Test (Windows implementations and sandbox command line)
+        run: dotnet test tests/PAIC.Tests.Windows/PAIC.Tests.Windows.csproj -c ${{ matrix.configuration }} --logger "trx;LogFileName=windows-test-results.trx"
+
+      - name: Publish installer command line (win-x64, single file)
+        run: >
+          dotnet publish src/PAIC.InstallerCli/PAIC.InstallerCli.csproj
+          -c ${{ matrix.configuration }} -r win-x64 --self-contained true -p:PublishSingleFile=true
+          -o artifacts/installer-cli
+
+      - name: Publish application (win-x64, self-contained)
+        run: >
+          dotnet publish src/PAIC.App/PAIC.App.csproj
+          -c ${{ matrix.configuration }} -r win-x64 --self-contained true -p:Platform=x64
+          -o artifacts/publish
+
+      - name: Verify published output
+        shell: pwsh
+        run: |
+          $exe = Join-Path artifacts/publish 'PAIC.App.exe'
+          if (-not (Test-Path $exe)) { throw "PAIC.App.exe was not produced." }
+          if ((Get-Item $exe).Length -le 0) { throw "PAIC.App.exe is empty." }
+          foreach ($f in 'PAIC.Core.dll','PAIC.Diagnostics.dll','PAIC.ProjectSystem.dll') {
+            if (-not (Test-Path (Join-Path artifacts/publish $f))) { throw "$f missing from publish output." }
+          }
+          if (-not (Test-Path artifacts/installer-cli/paic-installer.exe)) { throw "paic-installer.exe was not produced." }
+          $help = & artifacts/installer-cli/paic-installer.exe --help
+          if ($LASTEXITCODE -ne 0 -or -not ($help -match 'Usage')) { throw "paic-installer.exe --help failed." }
+          Write-Host "Publish output verified: $((Get-ChildItem artifacts/publish -Recurse -File).Count) files."
+
+      - name: Package and checksum
+        id: package
+        shell: pwsh
+        run: |
+          $xml = [xml](Get-Content Directory.Build.props)
+          $version = ($xml.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1)
+          $name = "PAIC-$version-${{ matrix.configuration }}-win-x64.zip"
+          New-Item -ItemType Directory -Force -Path artifacts/dist | Out-Null
+          Compress-Archive -Path artifacts/publish/* -DestinationPath "artifacts/dist/$name" -Force
+          $cli = "PAIC-InstallerCli-$version-${{ matrix.configuration }}-win-x64.zip"
+          Compress-Archive -Path artifacts/installer-cli/paic-installer.exe -DestinationPath "artifacts/dist/$cli" -Force
+          (Get-FileHash "artifacts/dist/$cli" -Algorithm SHA256).Hash.ToLower() + "  $cli" | Out-File "artifacts/dist/$cli.sha256" -Encoding ascii
+          $hash = (Get-FileHash "artifacts/dist/$name" -Algorithm SHA256).Hash.ToLower()
+          "$hash  $name" | Out-File "artifacts/dist/$name.sha256" -Encoding ascii
+          @{ product = 'Pixel Advanced Installer Creator'; version = $version; configuration = '${{ matrix.configuration }}';
+             architecture = 'x64'; commit = '${{ github.sha }}'; package = $name; sha256 = $hash } |
+            ConvertTo-Json | Out-File "artifacts/dist/release-metadata.json" -Encoding utf8
+          # verify the archive opens and contains the executable
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path "artifacts/dist/$name"))
+          try { if (-not ($zip.Entries | Where-Object { $_.Name -eq 'PAIC.App.exe' })) { throw "Package is missing PAIC.App.exe" } }
+          finally { $zip.Dispose() }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "package=$name" >> $env:GITHUB_OUTPUT
+
+      - name: Upload package
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: paic-${{ matrix.configuration }}-win-x64
+          path: artifacts/dist/*
+          if-no-files-found: error
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.configuration }}
+          path: tests/**/TestResults/*.trx
+          if-no-files-found: ignore
+
+      - name: Build report
+        if: always()
+        shell: pwsh
+        run: |
+          $lines = @(
+            "## PAIC build report ($('${{ matrix.configuration }}'), x64)",
+            "- Status: **${{ job.status }}**",
+            "- Commit: ${{ github.sha }}",
+            "- Version: ${{ steps.package.outputs.version }}",
+            "- Target architecture: x64 (ARM64 is not built yet)",
+            "- Package: ${{ steps.package.outputs.package }}",
+            "- Artifact upload outcome: ${{ steps.upload.outcome }}"
+          )
+          $lines | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
