@@ -1,0 +1,51 @@
+<Page x:Class="PAIC.App.Pages.AssetsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:am="using:PAIC.AssetManager">
+  <Grid x:Name="DropZone" AllowDrop="True" DragOver="DropZone_DragOver" Drop="DropZone_Drop" Padding="24,16,24,16" RowSpacing="8">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <TextBlock Text="Assets" Style="{StaticResource TitleTextBlockStyle}" />
+    <InfoBar x:Name="NoProjectBar" Grid.Row="1" IsOpen="True" IsClosable="False" Severity="Informational"
+             Title="No project is open" Message="Create or open a project to manage its assets." />
+    <CommandBar x:Name="Toolbar" Grid.Row="2" DefaultLabelPosition="Right" Visibility="Collapsed" HorizontalAlignment="Left" Background="Transparent">
+      <AppBarButton Icon="Add" Label="Import files" Click="Import_Click" />
+      <AppBarButton Icon="NewFolder" Label="New folder" Click="NewFolder_Click" />
+      <AppBarButton Icon="Rename" Label="Rename" Click="Rename_Click" />
+      <AppBarButton Icon="Copy" Label="Copy to..." Click="Copy_Click" />
+      <AppBarButton Icon="MoveToFolder" Label="Move to..." Click="Move_Click" />
+      <AppBarButton Icon="Delete" Label="Delete" Click="Delete_Click" />
+      <AppBarSeparator />
+      <AppBarButton Icon="Sync" Label="Sync with disk" Click="Sync_Click" />
+      <AppBarButton Icon="Find" Label="Find duplicates" Click="Duplicates_Click" />
+    </CommandBar>
+    <Grid x:Name="Body" Grid.Row="3" ColumnSpacing="16" Visibility="Collapsed">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" MinWidth="260" />
+        <ColumnDefinition Width="1.2*" />
+      </Grid.ColumnDefinitions>
+      <Border BorderThickness="1" CornerRadius="6" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+        <TreeView x:Name="Tree" SelectionMode="Single" SelectionChanged="Tree_SelectionChanged">
+          <TreeView.ItemTemplate>
+            <DataTemplate x:DataType="am:AssetNode">
+              <TreeViewItem ItemsSource="{x:Bind Children}" Content="{x:Bind Display}" IsExpanded="{x:Bind IsFolder}" />
+            </DataTemplate>
+          </TreeView.ItemTemplate>
+        </TreeView>
+      </Border>
+      <ScrollViewer Grid.Column="1">
+        <StackPanel Spacing="8">
+          <TextBlock x:Name="DetailTitle" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" />
+          <TextBlock x:Name="DetailText" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+          <Image x:Name="PreviewImage" MaxHeight="320" Stretch="Uniform" HorizontalAlignment="Left" Visibility="Collapsed" />
+          <TextBox x:Name="PreviewText" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" MaxHeight="320"
+                   FontFamily="Consolas" Visibility="Collapsed" />
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+  </Grid>
+</Page>

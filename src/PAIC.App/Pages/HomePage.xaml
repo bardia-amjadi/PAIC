@@ -1,0 +1,36 @@
+<Page x:Class="PAIC.App.Pages.HomePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ps="using:PAIC.ProjectSystem.Recent">
+  <ScrollViewer>
+    <StackPanel Padding="32" Spacing="20" MaxWidth="900" HorizontalAlignment="Left">
+      <TextBlock Text="Pixel Advanced Installer Creator" Style="{StaticResource TitleTextBlockStyle}" />
+      <TextBlock Text="Create or open a .paproj project to get started." Opacity="0.8" />
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <Button Content="New project" Style="{StaticResource AccentButtonStyle}" Click="NewProject_Click" />
+        <Button Content="Open project..." Click="OpenProject_Click" />
+        <Button Content="Browse templates" Click="BrowseTemplates_Click" />
+      </StackPanel>
+      <TextBlock Text="Recent projects" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,12,0,0" />
+      <TextBlock x:Name="NoRecentText" Text="No recent projects yet." Opacity="0.7" Visibility="Collapsed" />
+      <ListView ItemsSource="{x:Bind Recent}" IsItemClickEnabled="True" SelectionMode="None"
+                ItemClick="RecentList_ItemClick">
+        <ListView.ItemTemplate>
+          <DataTemplate x:DataType="ps:RecentProject">
+            <Grid Padding="4,8" ColumnSpacing="12">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <StackPanel>
+                <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" />
+                <TextBlock Text="{x:Bind Path}" Opacity="0.7" TextTrimming="CharacterEllipsis" />
+              </StackPanel>
+              <Button Grid.Column="1" Content="Remove" Tag="{x:Bind Path}" Click="RemoveRecent_Click" />
+            </Grid>
+          </DataTemplate>
+        </ListView.ItemTemplate>
+      </ListView>
+    </StackPanel>
+  </ScrollViewer>
+</Page>

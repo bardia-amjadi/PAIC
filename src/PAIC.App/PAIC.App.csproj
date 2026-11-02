@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>PAIC.App</RootNamespace>
+    <AssemblyName>PAIC.App</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <UseWinUI>true</UseWinUI>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <SelfContained>true</SelfContained>
+    <EnableMsixTooling>true</EnableMsixTooling>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.*" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.*" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PAIC.Core\PAIC.Core.csproj" />
+    <ProjectReference Include="..\PAIC.Diagnostics\PAIC.Diagnostics.csproj" />
+    <ProjectReference Include="..\PAIC.ProjectSystem\PAIC.ProjectSystem.csproj" />
+    <ProjectReference Include="..\PAIC.ThemeEngine\PAIC.ThemeEngine.csproj" />
+    <ProjectReference Include="..\PAIC.AssetManager\PAIC.AssetManager.csproj" />
+    <ProjectReference Include="..\PAIC.TemplateEngine\PAIC.TemplateEngine.csproj" />
+    <ProjectReference Include="..\PAIC.Controls\PAIC.Controls.csproj" />
+    <ProjectReference Include="..\PAIC.Designer\PAIC.Designer.csproj" />
+    <ProjectReference Include="..\PAIC.InstallerEngine\PAIC.InstallerEngine.csproj" />
+  </ItemGroup>
+</Project>

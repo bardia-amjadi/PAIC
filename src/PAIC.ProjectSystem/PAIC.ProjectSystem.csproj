@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PAIC.Core\PAIC.Core.csproj" />
+    <ProjectReference Include="..\PAIC.ThemeEngine\PAIC.ThemeEngine.csproj" />
+    <ProjectReference Include="..\PAIC.Controls\PAIC.Controls.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+</Project>

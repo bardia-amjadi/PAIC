@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>PAIC.InstallerRuntime</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PAIC.Core\PAIC.Core.csproj" />
+    <ProjectReference Include="..\PAIC.Controls\PAIC.Controls.csproj" />
+    <ProjectReference Include="..\PAIC.ProjectSystem\PAIC.ProjectSystem.csproj" />
+    <ProjectReference Include="..\PAIC.InstallerEngine\PAIC.InstallerEngine.csproj" />
+    <ProjectReference Include="..\PAIC.Diagnostics\PAIC.Diagnostics.csproj" />
+  </ItemGroup>
+</Project>

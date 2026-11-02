@@ -1,0 +1,38 @@
+<Window x:Class="PAIC.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Pixel Advanced Installer Creator">
+  <Grid x:Name="Root">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <Grid x:Name="AppTitleBar" Height="40" Padding="16,0,0,0">
+      <TextBlock Text="Pixel Advanced Installer Creator" VerticalAlignment="Center"
+                 Style="{StaticResource CaptionTextBlockStyle}" />
+    </Grid>
+
+    <NavigationView x:Name="Nav" Grid.Row="1" PaneDisplayMode="Left" OpenPaneLength="220"
+                    IsBackButtonVisible="Collapsed" IsSettingsVisible="True"
+                    SelectionChanged="Nav_SelectionChanged">
+      <NavigationView.MenuItems>
+        <NavigationViewItem Content="Home" Tag="home" Icon="Home" />
+        <NavigationViewItem Content="Project" Tag="project" Icon="Document" />
+        <NavigationViewItem Content="Designer" Tag="designer" Icon="Edit" />
+        <NavigationViewItem Content="Installation" Tag="installation" Icon="Setting" />
+        <NavigationViewItem Content="Assets" Tag="assets" Icon="Pictures" />
+        <NavigationViewItem Content="Themes" Tag="themes" Icon="FontColor" />
+        <NavigationViewItem Content="Templates" Tag="templates" Icon="Library" />
+        <NavigationViewItem Content="Diagnostics" Tag="diagnostics" Icon="Message" />
+      </NavigationView.MenuItems>
+      <Frame x:Name="ContentFrame" />
+    </NavigationView>
+
+    <Border Grid.Row="2" Padding="12,4" BorderThickness="0,1,0,0"
+            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+      <TextBlock x:Name="StatusText" Style="{StaticResource CaptionTextBlockStyle}" TextTrimming="CharacterEllipsis" />
+    </Border>
+  </Grid>
+</Window>

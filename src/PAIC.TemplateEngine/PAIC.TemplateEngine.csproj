@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PAIC.Core\PAIC.Core.csproj" />
+    <ProjectReference Include="..\PAIC.ThemeEngine\PAIC.ThemeEngine.csproj" />
+    <ProjectReference Include="..\PAIC.ProjectSystem\PAIC.ProjectSystem.csproj" />
+  </ItemGroup>
+</Project>
